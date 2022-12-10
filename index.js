@@ -1,16 +1,29 @@
 const fs = require('fs');
+const path = require('path')
 
-try {
-  const data1 = fs.readFileSync('lorem.js', 'utf8');
-  const data2 = fs.readFileSync('ipsum.js', 'utf8');
-  console.log("data1 : ", data1);
-  console.log("data2 : ", data2);
-  if (data1 === data2) {
-    console.log(true)
-  } else {
-    console.log(false)
-  }
-} catch (err) {
-  console.error(err);
+function readFilesSync(dir) {
+  const files = [];
+
+  fs.readdirSync(dir).forEach(filename => {
+    const name = path.parse(filename).name;
+    const ext = path.parse(filename).ext;
+    const filepath = path.resolve(dir, filename);
+    const stat = fs.statSync(filepath);
+    const isFile = stat.isFile();
+    const content = fs.readFileSync(filepath, 'utf-8')
+
+    if (isFile) files.push({ filepath, name, ext, content });
+  });
+
+  files.sort((a, b) => {
+    // natural sort alphanumeric strings
+    // https://stackoverflow.com/a/38641281
+    return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
+  });
+
+  // return files;
+  console.log(files)
 }
+
+const files = readFilesSync('src/');
 
