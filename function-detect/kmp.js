@@ -72,6 +72,8 @@ function KMPSearch(pat, txt) {
 // var txt = "ABABDABACDASABABCABAB";
 // var pat = "ABABCABAB";
 
-var txt = "loremipsumdolorsitametkonsekuensi";
-var pat = "ametkonse";
-KMPSearch(pat, txt)
+// var txt = "loremipsumdolorsitametkonsekuensi";
+// var pat = "ametkonse";
+// KMPSearch(pat, txt)
+
+module.exports = { KMPSearch }
