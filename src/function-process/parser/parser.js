@@ -1,11 +1,11 @@
 const fs = require('fs');
 const {
   getFileContentFromSpecificDir
-} = require('../../index')
+} = require('../../../index')
 
 // By default its check "src" path and "root directory"
 // do not change this line
-console.log(getFileContentFromSpecificDir('./src'))
+console.log(getFileContentFromSpecificDir('./src/file-test'))
 console.log(getFileContentFromSpecificDir())
 
 // read all installed package

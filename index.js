@@ -51,9 +51,6 @@ function readFilesSync(dir) {
   return files;
 }
 
-// By default its check "src" path and "root directory"
-// readFilesSync('src/')
-
 module.exports = {
   getFileContentFromSpecificDir,
   readFilesSync
