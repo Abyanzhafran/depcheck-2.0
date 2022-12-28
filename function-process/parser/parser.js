@@ -10,10 +10,10 @@ console.log(getFileContentFromSpecificDir())
 
 // read all installed package
 var installedDependencies = []
-const packageJson = JSON.parse(fs.readFileSync('package.json'))
+const packageJson = JSON.parse(fs.readFileSync('package-test.json'))
 const dependencies = packageJson.dependencies;
+const devDependencies = packageJson.devDependencies
 
-installedDependencies.push(dependencies)
+installedDependencies.push({ dependencies, devDependencies })
 
-console.log('this is parser')
 console.log(installedDependencies)
