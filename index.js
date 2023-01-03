@@ -1,33 +1,24 @@
 const fs = require('fs');
 const path = require('path');
+const { kmpSearch } = require("./src/kmp")
 
-function getFileContentFromSpecificDir(dir) {
-  const fileContent = []
+// Read the dependencies from the package.json file
+const packageJson = JSON.parse(fs.readFileSync('package.json'));
+const dependencies = new Set(Object.keys(packageJson.dependencies));
 
-  if (dir != undefined) {
-    fs.readdirSync(dir).forEach(filename => {
-      const ext = path.parse(filename).ext
-      const filepath = path.resolve(dir, filename)
-      const stat = fs.statSync(filepath)
-      const isFile = stat.isFile()
-      const content = fs.readFileSync(filepath, 'utf-8')
+// Read the source code files
+const sourceCodeDir = 'src';
+const sourceCodeFiles = fs.readdirSync(sourceCodeDir);
 
-      // read file
-      if (isFile == true && ext == '.js' || filename == 'package.json')
-        fileContent.push({ filename, content })
-    });
+// Iterate over the source code files and search for patterns of package names using the KMP algorithm
+sourceCodeFiles.forEach(sourceCodeFile => {
+  const sourceCode = fs.readFileSync(path.join(sourceCodeDir, sourceCodeFile), 'utf8');
+  dependencies.forEach(dependency => {
+    if (kmpSearch(sourceCode, dependency)) {
+      dependencies.delete(dependency);
+    }
+  });
+});
 
-    return fileContent
-
-  } else {
-
-    const files = fs.readdirSync('.');
-    const jsFiles = files.filter(file => file.endsWith('.js'));
-    return jsFiles
-  }
-}
-
-module.exports = {
-  getFileContentFromSpecificDir
-}
-
+// Print the unused dependencies
+console.log('Unused dependencies:', dependencies);
