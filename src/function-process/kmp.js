@@ -1,4 +1,4 @@
-// Use KMP algorithm to search for dependencies in the JavaScript files
+// Use KMP algorithm to search for dependencies in the javaScript files
 function kmpSearch(pattern, text) {
   const m = pattern.length;
   const n = text.length;
