@@ -2,26 +2,28 @@ const fs = require('fs');
 const path = require('path');
 
 function getFileContentFromSpecificDir(dir) {
-  const fileContent = []
-
   if (dir != undefined) {
-    fs.readdirSync(dir).forEach(filename => {
-      const ext = path.parse(filename).ext
-      const filepath = path.resolve(dir, filename)
-      const stat = fs.statSync(filepath)
-      const isFile = stat.isFile()
-      const content = fs.readFileSync(filepath, 'utf-8')
+    let fileContent = [];
+    const files = fs.readdirSync(dir);
 
-      // Read file
-      if (isFile == true && ext == '.js' || filename == 'package.json')
+    files.forEach(filename => {
+      const filePath = path.join(dir, filename)
+      const stat = fs.statSync(filePath)
+
+      if (stat.isDirectory()) {
+        fileContent = fileContent.concat(getFileContentFromSpecificDir(filePath))
+
+      } else if (path.extname(filename) === '.js') {
+        const content = fs.readFileSync(path.join(dir, filename), 'utf-8')
         fileContent.push({ filename, content })
+      }
     });
 
     return fileContent
-
   } else {
 
-    // Read root folder if the function args empty
+    let fileContent = []
+
     fs.readdirSync('.').forEach(filename => {
       const ext = path.parse(filename).ext
       if (ext === '.js') {
@@ -33,6 +35,7 @@ function getFileContentFromSpecificDir(dir) {
 
     return fileContent
   }
+
 }
 
 module.exports = {
