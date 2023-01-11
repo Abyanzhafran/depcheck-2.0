@@ -3,7 +3,7 @@ const path = require('path');
 const { kmpSearch } = require('./src/function-process/kmp')
 const { getFileContentFromSpecificDir } = require('./src/function-process/getFileContent')
 
-const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, 'package-test-1.json'), 'utf8'));
+const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json'), 'utf8'));
 const dependencies = new Set(Object.keys(packageJson.dependencies));
 
 const files = []
