@@ -1,33 +1,28 @@
 const fs = require('fs');
 const path = require('path');
+const { kmpSearch } = require('./src/function-process/kmp')
+const { getFileContentFromSpecificDir } = require('./src/function-process/getFileContent')
 
-function getFileContentFromSpecificDir(dir) {
-  const fileContent = []
+const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json'), 'utf8'));
+const dependencies = new Set(Object.keys(packageJson.dependencies));
 
-  if (dir != undefined) {
-    fs.readdirSync(dir).forEach(filename => {
-      const ext = path.parse(filename).ext
-      const filepath = path.resolve(dir, filename)
-      const stat = fs.statSync(filepath)
-      const isFile = stat.isFile()
-      const content = fs.readFileSync(filepath, 'utf-8')
+const files = []
 
-      // read file
-      if (isFile == true && ext == '.js' || filename == 'package.json')
-        fileContent.push({ filename, content })
-    });
+// don't change this line, default config
+files.push(getFileContentFromSpecificDir('./src'))
+files.push(getFileContentFromSpecificDir())
 
-    return fileContent
-
-  } else {
-
-    const files = fs.readdirSync('.');
-    const jsFiles = files.filter(file => file.endsWith('.js'));
-    return jsFiles
+// Iterate through files data stack to get the content
+for (const i in files) {
+  for (const j of files[i]) {
+    for (const deps of dependencies) {
+      if (kmpSearch(deps, j.content)) {
+        dependencies.delete(deps)
+      }
+    }
   }
 }
 
-module.exports = {
-  getFileContentFromSpecificDir
-}
+// Print unused dependencies
+console.log(Array.from(dependencies));
 
