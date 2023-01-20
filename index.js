@@ -1,7 +1,10 @@
 const fs = require('fs');
 const path = require('path');
+const { performance } = require('perf_hooks');
 const { kmpSearch } = require('./src/function-process/kmp')
 const { getFileContentFromSpecificDir } = require('./src/function-process/getFileContent')
+
+const start = performance.now();
 
 const packageJson = JSON.parse(fs.readFileSync(path.join('../../', 'package.json'), 'utf8'));
 const dependencies = new Set(Object.keys(packageJson.dependencies));
@@ -25,5 +28,8 @@ for (const i in files) {
 }
 
 // Print unused dependencies
-console.log(Array.from(dependencies));
+console.log('Unused packages : ', Array.from(dependencies));
 
+const end = performance.now();
+const executionTime = end - start;
+console.log(`Execution time: ${executionTime} ms`);
