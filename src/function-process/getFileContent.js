@@ -18,7 +18,8 @@ function getFileContentFromSpecificDir(dir) {
       path.extname(filename) === '.js' ||
       path.extname(filename) === '.vue' ||
       path.extname(filename) === '.jsx' ||
-      path.extname(filename) === '.ts'
+      path.extname(filename) === '.ts' ||
+      path.extname(filename) === '.cjs'
     ) {
       const content = fs.readFileSync(path.join(dir, filename), 'utf-8')
       fileContent.push({ filename, content })
