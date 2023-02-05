@@ -11,11 +11,15 @@ function getFileContentFromSpecificDir(dir) {
 
     if (filename === "node_modules") {
       return;
-    }
-    else if (stat.isDirectory()) {
+    } else if (stat.isDirectory()) {
       fileContent = fileContent.concat(getFileContentFromSpecificDir(filePath))
 
-    } else if (path.extname(filename) === '.js') {
+    } else if (
+      path.extname(filename) === '.js' ||
+      path.extname(filename) === '.vue' ||
+      path.extname(filename) === '.jsx' ||
+      path.extname(filename) === '.ts'
+    ) {
       const content = fs.readFileSync(path.join(dir, filename), 'utf-8')
       fileContent.push({ filename, content })
     }
