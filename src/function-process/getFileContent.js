@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require('fs')
+const path = require('path')
 
 function getFileContentFromSpecificDir(dir) {
   let fileContent = [];
@@ -10,7 +10,13 @@ function getFileContentFromSpecificDir(dir) {
     const stat = fs.statSync(filePath)
 
     if (filename === "node_modules") {
-      return;
+      return
+
+    } else if (filename === "package.json") {
+      const data = fs.readFileSync(path.join(dir, filename), 'utf-8')
+      const content = Object.values(JSON.parse(data)["scripts"]).toString()
+      fileContent.push({ filename, content })
+
     } else if (stat.isDirectory()) {
       fileContent = fileContent.concat(getFileContentFromSpecificDir(filePath))
 
