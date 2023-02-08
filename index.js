@@ -19,7 +19,7 @@ let mergedDevDeps = new Set()
 
 for (const i of packages) {
   mergedDeps = new Set([...mergedDeps, ...Array.from(i.dependencies)])
-  mergedDevDeps = new Set([...mergedDeps, ...Array.from(i.devDependencies)])
+  mergedDevDeps = new Set([...mergedDevDeps, ...Array.from(i.devDependencies)])
 }
 
 // Iterate through files data stack to get the content
