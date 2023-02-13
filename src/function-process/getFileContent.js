@@ -9,12 +9,23 @@ function getFileContentFromSpecificDir(dir) {
     const filePath = path.join(dir, filename)
     const stat = fs.statSync(filePath)
 
-    if (filename === "node_modules") {
+    if (!fs.existsSync(filename)) {
       return
+    }
 
-    } else if (filename === "package.json") {
-      const data = fs.readFileSync(path.join(dir, filename), 'utf-8')
-      const content = Object.values(JSON.parse(data)["scripts"]).toString()
+    if (filename === "package.json") {
+      let data = fs.readFileSync(path.join(dir, filename), 'utf-8')
+      let jsonData
+      try {
+        jsonData = JSON.parse(data)
+      } catch (error) {
+        return
+      }
+
+      let content = jsonData["scripts"]
+        ? Object.values(jsonData["scripts"]).toString()
+        : ""
+
       fileContent.push({ filename, content })
 
     } else if (stat.isDirectory()) {
@@ -25,23 +36,40 @@ function getFileContentFromSpecificDir(dir) {
       path.extname(filename) === '.vue' ||
       path.extname(filename) === '.jsx' ||
       path.extname(filename) === '.ts' ||
-      path.extname(filename) === '.cjs'
+      path.extname(filename) === '.cjs' ||
+      path.extname(filename) === '.json'
     ) {
-      const content = fs.readFileSync(path.join(dir, filename), 'utf-8')
-      fileContent.push({ filename, content })
+      let content = '';
+      if (path.extname(filename) === '.json') {
+        let jsonContent = fs.readFileSync(path.join(dir, filename), 'utf-8')
+        jsonContent = jsonContent.replace(/\/\/.*/g, ''); // Remove json single-line comments
+        jsonContent = jsonContent.replace(/\/\*[\s\S]*?\*\//g, ''); // Remove json multi-line comments
+
+        content = `optionalDependencies: ${Object.values(jsonContent.optionalDependencies ||
+          {}).toString()}\npeerDependencies: ${Object.values(jsonContent.peerDependencies ||
+            {}).toString()}`
+
+      } else {
+        content = fs.readFileSync(path.join(dir, filename), 'utf-8');
+      }
+      fileContent.push({ filename, content });
     }
   });
 
   return fileContent
 }
 
-function getPackageJsonDependencies(dir) {
+function getInstalledPackageJsonDependencies(dir) {
   let packageContent = []
   const files = fs.readdirSync(dir)
 
   files.forEach(filename => {
     const filePath = path.join(dir, filename)
     const stat = fs.statSync(filePath)
+
+    if (!fs.existsSync(filename)) {
+      return
+    }
 
     if (filename === "node_modules") {
       return
@@ -59,7 +87,7 @@ function getPackageJsonDependencies(dir) {
       packageContent.push({ dependencies: packageDependencies, devDependencies: packageDevDependencies })
 
     } else if (stat.isDirectory()) {
-      packageContent = packageContent.concat(getPackageJsonDependencies(filePath))
+      packageContent = packageContent.concat(getInstalledPackageJsonDependencies(filePath))
     }
   })
 
@@ -68,6 +96,5 @@ function getPackageJsonDependencies(dir) {
 
 module.exports = {
   getFileContentFromSpecificDir,
-  getPackageJsonDependencies
+  getInstalledPackageJsonDependencies
 }
-

@@ -2,13 +2,13 @@ const { performance } = require('perf_hooks')
 const { kmpSearch } = require('./src/function-process/kmp')
 const {
   getFileContentFromSpecificDir,
-  getPackageJsonDependencies
+  getInstalledPackageJsonDependencies
 } = require('./src/function-process/getFileContent')
 
 const start = performance.now()
 
 const files = []
-const packages = getPackageJsonDependencies('../../')
+const packages = getInstalledPackageJsonDependencies('../../')
 
 // don't change this line, default config
 files.push(getFileContentFromSpecificDir('../../'))
@@ -41,7 +41,7 @@ for (const i in files) {
 
 // Print unused dependencies
 console.log('Unused dependencies : ', Array.from(mergedDeps));
-console.log('Unused devDependencies : ', Array.from(mergedDevDeps).length);
+console.log('Unused devDependencies : ', Array.from(mergedDevDeps));
 
 const end = performance.now();
 const executionTime = end - start;
