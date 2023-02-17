@@ -1,63 +1,67 @@
 const fs = require('fs')
 const path = require('path')
 
-function getFileContentFromSpecificDir(dir) {
-  let fileContent = []
-  const files = fs.readdirSync(dir)
+function getFileContentFromSpecificDir(dir, extensions) {
+  if (typeof extensions === 'string') {
+    extensions = [extensions];
+  }
 
-  files.forEach(filename => {
-    const filePath = path.join(dir, filename)
-    const stat = fs.statSync(filePath)
+  const fileContent = [];
+  const files = fs.readdirSync(dir);
 
-    if (!fs.existsSync(filename)) {
+  files.forEach((filename) => {
+    const filePath = path.join(dir, filename);
+    const stat = fs.statSync(filePath);
+
+    if (filename === 'node_modules') {
       return
     }
 
-    if (filename === "package.json") {
-      let data = fs.readFileSync(path.join(dir, filename), 'utf-8')
-      let jsonData
-      try {
-        jsonData = JSON.parse(data)
-      } catch (error) {
+    if (stat.isDirectory()) {
+      fileContent.push(...getFileContentFromSpecificDir(filePath, extensions))
+
+    } else {
+      const fileExtension = path.extname(filename).toLowerCase()
+
+      if (!extensions.includes(fileExtension)) {
         return
       }
 
-      let content = jsonData["scripts"]
-        ? Object.values(jsonData["scripts"]).toString()
-        : ""
+      if (filename === 'package-lock.json') {
+        return
 
-      fileContent.push({ filename, content })
+      } else if (extensions === '.json' && filename !== 'package.json') {
+        const content = fs.readFileSync(filePath, 'utf-8')
+        fileContent.push({ filename, content })
 
-    } else if (stat.isDirectory()) {
-      fileContent = fileContent.concat(getFileContentFromSpecificDir(filePath))
+      } else if (filename === "package.json") {
+        const data = fs.readFileSync(filePath, 'utf-8')
+        let jsonData
+        try {
+          jsonData = JSON.parse(data)
+        } catch (error) {
+          return
+        }
 
-    } else if (
-      path.extname(filename) === '.js' ||
-      path.extname(filename) === '.vue' ||
-      path.extname(filename) === '.jsx' ||
-      path.extname(filename) === '.ts' ||
-      path.extname(filename) === '.cjs' ||
-      path.extname(filename) === '.json'
-    ) {
-      let content = '';
-      if (path.extname(filename) === '.json') {
-        let jsonContent = fs.readFileSync(path.join(dir, filename), 'utf-8')
-        jsonContent = jsonContent.replace(/\/\/.*/g, ''); // Remove json single-line comments
-        jsonContent = jsonContent.replace(/\/\*[\s\S]*?\*\//g, ''); // Remove json multi-line comments
+        let contentData = {
+          scripts: jsonData.scripts ? Object.values(jsonData["scripts"]) : "",
+          optionalDependencies: jsonData.optionalDependencies ? Object.values(jsonData["optionalDependencies"]) : "",
+          peerDependencies: jsonData.peerDependencies ? Object.values(jsonData["peerDependencies"]) : "",
+        }
 
-        content = `optionalDependencies: ${Object.values(jsonContent.optionalDependencies ||
-          {}).toString()}\npeerDependencies: ${Object.values(jsonContent.peerDependencies ||
-            {}).toString()}`
+        let content = Object.values(contentData).toString()
+        fileContent.push({ filename, content })
 
       } else {
-        content = fs.readFileSync(path.join(dir, filename), 'utf-8');
+        const content = fs.readFileSync(filePath, 'utf-8');
+        fileContent.push({ filename, content });
       }
-      fileContent.push({ filename, content });
     }
   });
 
-  return fileContent
+  return fileContent;
 }
+
 
 function getInstalledPackageJsonDependencies(dir) {
   let packageContent = []

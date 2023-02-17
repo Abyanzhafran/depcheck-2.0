@@ -11,7 +11,7 @@ const files = []
 const packages = getInstalledPackageJsonDependencies('../../')
 
 // don't change this line, default config
-files.push(getFileContentFromSpecificDir('../../'))
+files.push(getFileContentFromSpecificDir('../../', ['.js', '.vue', '.jsx', '.ts', '.cjs', '.json']))
 
 // merge deps and devDeps
 let mergedDeps = new Set()
