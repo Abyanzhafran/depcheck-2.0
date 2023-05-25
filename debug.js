@@ -1,12 +1,12 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 function kmpSearch(pattern, fileContent) {
   const results = [];
 
-  fileContent.forEach(file => {
+  fileContent.forEach((file) => {
     if (!fs.existsSync(file.filename)) {
-      return
+      return;
     }
 
     const lines = file.content.split("\n");
@@ -35,7 +35,7 @@ function kmpSearch(pattern, fileContent) {
               filename: file.filename,
               location: path.resolve(path.resolve(file.filename)),
               lineNumber: lineNumber + 1,
-              line: line
+              line: line,
             });
           }
         }
@@ -46,5 +46,4 @@ function kmpSearch(pattern, fileContent) {
   return results;
 }
 
-module.exports = { kmpSearch }
-
+module.exports = { kmpSearch };

@@ -27,4 +27,4 @@ function kmpSearch(pattern, text) {
   return false;
 }
 
-module.exports = { kmpSearch }
+module.exports = { kmpSearch };
