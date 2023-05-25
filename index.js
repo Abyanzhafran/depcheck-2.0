@@ -1,48 +1,50 @@
-const { performance } = require('perf_hooks')
-const { kmpSearch } = require('./src/function-process/kmp')
+const { kmpSearch } = require("./src/function-process/kmp");
 const {
   getFileContentFromSpecificDir,
-  getInstalledPackageJsonDependencies
-} = require('./src/function-process/getFileContent')
+  getInstalledPackageJsonDependencies,
+} = require("./src/function-process/getFileContent");
 
-const start = performance.now()
+function depsChecker() {
+  const files = [];
+  const packages = getInstalledPackageJsonDependencies(".");
 
-const files = []
-const packages = getInstalledPackageJsonDependencies('../../')
+  // don't change this line, default config
+  files.push(
+    getFileContentFromSpecificDir(".", [".js", ".jsx", ".ts", ".cjs", ".json"])
+  );
 
-// don't change this line, default config
-files.push(getFileContentFromSpecificDir('../../', ['.js', '.vue', '.jsx', '.ts', '.cjs', '.json']))
+  // merge deps and devDeps
+  let mergedDeps = new Set();
+  let mergedDevDeps = new Set();
 
-// merge deps and devDeps
-let mergedDeps = new Set()
-let mergedDevDeps = new Set()
+  for (const i of packages) {
+    mergedDeps = new Set([...mergedDeps, ...Array.from(i.dependencies)]);
+    mergedDevDeps = new Set([
+      ...mergedDevDeps,
+      ...Array.from(i.devDependencies),
+    ]);
+  }
 
-for (const i of packages) {
-  mergedDeps = new Set([...mergedDeps, ...Array.from(i.dependencies)])
-  mergedDevDeps = new Set([...mergedDevDeps, ...Array.from(i.devDependencies)])
-}
-
-// Iterate through files data stack to get the content
-for (const i in files) {
-  for (const j of files[i]) {
-    for (const deps of mergedDeps) {
-      if (kmpSearch(deps, j.content)) {
-        mergedDeps.delete(deps)
+  // Iterate through files data stack to get the content
+  for (const i in files) {
+    for (const j of files[i]) {
+      for (const deps of mergedDeps) {
+        if (kmpSearch(deps, j.content)) {
+          mergedDeps.delete(deps);
+        }
       }
-    }
 
-    for (const devDeps of mergedDevDeps) {
-      if (kmpSearch(devDeps, j.content)) {
-        mergedDevDeps.delete(devDeps)
+      for (const devDeps of mergedDevDeps) {
+        if (kmpSearch(devDeps, j.content)) {
+          mergedDevDeps.delete(devDeps);
+        }
       }
     }
   }
+
+  // Print unused dependencies
+  console.log("Unused dependencies : ", Array.from(mergedDeps));
+  console.log("Unused devDependencies : ", Array.from(mergedDevDeps));
 }
 
-// Print unused dependencies
-console.log('Unused dependencies : ', Array.from(mergedDeps));
-console.log('Unused devDependencies : ', Array.from(mergedDevDeps));
-
-const end = performance.now();
-const executionTime = end - start;
-console.log(`Execution time: ${executionTime} ms`);
+module.exports = { depsChecker };
