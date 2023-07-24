@@ -1,3 +1,3 @@
-# depcheck-2.0
+# research-deps-checker
 
 ### The general purpose of this repo is for research
